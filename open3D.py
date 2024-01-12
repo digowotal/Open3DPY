@@ -8,7 +8,44 @@ main_cam_pos = [0, 0, 0]
 main_cam_rot = [0, 0, 0]
 main_cam_plane = [0, 0, 5]
 
+scene_vertices = []
+scene_faces = []
+
 # Core functions
+# File reading
+def read_obj(path):
+    with open(path, "r") as f:
+        # Get information from OBJ file
+        data = f.readlines()
+        
+        # Get vertices from OBJ file
+        for line in data:
+            if line[0] == "v" and line[1] == " ":
+                # line is a vertex
+                
+                vertex = []
+                
+                i = 0
+                
+                for substring in line.split(" ")[1:]:
+                    vertex.append(float(substring))
+                    i += 1
+                
+                scene_vertices.append(vertex)
+                
+        
+        # Get faces from OBJ file
+        for line in data:
+    
+            if line[0] == "f":
+                # line is a face
+                face = []
+                
+                for substring in line.split(" ")[1:]:
+                    face.append(scene_vertices[int(substring.split("/")[0]) - 1])
+                scene_faces.append(face)
+
+# Projection
 def project_scene(faces, cam_pos, cam_rot, cam_plane):
     # Declare output array
     projected_scene = []
@@ -19,14 +56,16 @@ def project_scene(faces, cam_pos, cam_rot, cam_plane):
             math.cos(cam_rot[0]) * math.cos(cam_rot[2]), 
             math.sin(cam_rot[0]) * math.sin(cam_rot[1]) * math.cos(cam_rot[2]) - math.cos(cam_rot[0]) * math.sin(cam_rot[2]), 
             math.cos(cam_rot[0]) * math.sin(cam_rot[1]) * math.cos(cam_rot[2]) + math.sin(cam_rot[0]) * math.sin(cam_rot[2])
-        ], [
+        ], 
+        [
             math.cos(cam_rot[0]) * math.cos(cam_rot[2]), 
             math.sin(cam_rot[0]) * math.sin(cam_rot[1]) * math.cos(cam_rot[2]) + math.cos(cam_rot[0]) * math.sin(cam_rot[2]), 
             math.cos(cam_rot[0]) * math.sin(cam_rot[1]) * math.sin(cam_rot[2]) - math.sin(cam_rot[0]) * math.cos(cam_rot[2])
-        ], [
+        ], 
+        [
             -math.sin(cam_rot[1]),
-            math.sin(cam_rot[0] * math.cos(cam_rot[1]),
-            math.cos(cam_rot[0] * math.cos(cam_rot[1])
+            math.sin(cam_rot[0]) * math.cos(cam_rot[1]),
+            math.cos(cam_rot[0]) * math.cos(cam_rot[1])
         ]
     ]
     
@@ -48,4 +87,3 @@ def project_scene(faces, cam_pos, cam_rot, cam_plane):
         
     # Return projected scene
     return projected_scene
-
